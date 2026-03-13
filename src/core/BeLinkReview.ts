@@ -10,6 +10,7 @@ import { isCheckCliInstall } from "../utils/checkCli";
 import { getGitDiff } from "./git";
 import { generateAIPrompt } from "./prompt";
 import { sendReviewToFeishu } from "./feishu";
+import { DEFAULT_MODEL } from "../constants";
 
 export class BeLinkReview {
   static #instance: BeLinkReview | null = null;
@@ -17,17 +18,20 @@ export class BeLinkReview {
   #agentPath: string | undefined;
   #ignorePatterns: string[] | undefined;
   #enableFeishu: boolean;
+  #model: string | undefined;
 
   private constructor(
     apiKey?: string,
     agentPath?: string,
     ignorePatterns?: string[],
-    enableFeishu: boolean = true
+    enableFeishu: boolean = true,
+    model?: string
   ) {
     this.#apiKey = apiKey;
     this.#agentPath = agentPath;
     this.#ignorePatterns = ignorePatterns;
     this.#enableFeishu = enableFeishu;
+    this.#model = model;
   }
 
   /**
@@ -41,13 +45,15 @@ export class BeLinkReview {
         options.apiKey,
         options.agentPath,
         options.ignore,
-        options.enableFeishu ?? true
+        options.enableFeishu ?? true,
+        options.model
       );
     } else {
-      BeLinkReview.#instance.#apiKey = options.apiKey; // 允许重新初始化时更新 apiKey
-      BeLinkReview.#instance.#agentPath = options.agentPath; // 允许重新初始化时更新 agentPath
-      BeLinkReview.#instance.#ignorePatterns = options.ignore; // 允许重新初始化时更新 ignorePatterns
-      BeLinkReview.#instance.#enableFeishu = options.enableFeishu ?? true; // 允许重新初始化时更新飞书开关
+      BeLinkReview.#instance.#apiKey = options.apiKey;
+      BeLinkReview.#instance.#agentPath = options.agentPath;
+      BeLinkReview.#instance.#ignorePatterns = options.ignore;
+      BeLinkReview.#instance.#enableFeishu = options.enableFeishu ?? true;
+      BeLinkReview.#instance.#model = options.model;
     }
     BeLinkReview.#instance.#setupProjectScript();
     return BeLinkReview.#instance;
@@ -64,7 +70,8 @@ export class BeLinkReview {
     cliApiKey?: string,
     cliAgentPath?: string,
     cliIgnorePatterns?: string[],
-    cliEnableFeishu?: boolean
+    cliEnableFeishu?: boolean,
+    cliModel?: string
   ): BeLinkReview {
     if (BeLinkReview.#instance === null) {
       const apiKey = cliApiKey || process.env.CURSOR_API_KEY;
@@ -76,6 +83,7 @@ export class BeLinkReview {
           : undefined);
       const enableFeishu =
         cliEnableFeishu ?? process.env.FEISHU_ENABLED !== "false";
+      const model = cliModel || process.env.CURSOR_MODEL;
 
       if (!apiKey) {
         throw new Error(
@@ -86,10 +94,10 @@ export class BeLinkReview {
         apiKey,
         agentPath,
         ignorePatterns,
-        enableFeishu
+        enableFeishu,
+        model
       );
     } else {
-      // 如果单例已存在，但参数未设置，且命令行传入了，则更新
       if (cliApiKey && !BeLinkReview.#instance.#apiKey) {
         BeLinkReview.#instance.#apiKey = cliApiKey;
       }
@@ -101,6 +109,9 @@ export class BeLinkReview {
       }
       if (cliEnableFeishu !== undefined) {
         BeLinkReview.#instance.#enableFeishu = cliEnableFeishu;
+      }
+      if (cliModel) {
+        BeLinkReview.#instance.#model = cliModel;
       }
     }
     return BeLinkReview.#instance;
@@ -129,6 +140,10 @@ export class BeLinkReview {
 
   #isFeishuEnabled(): boolean {
     return this.#enableFeishu;
+  }
+
+  #getModel(): string {
+    return this.#model || process.env.CURSOR_MODEL || DEFAULT_MODEL;
   }
 
   /**
@@ -186,7 +201,9 @@ export class BeLinkReview {
     const response = await this.chat(prompt, {
       agentPath: ensureResult.actualAgentPath,
       force: true,
+      model: this.#getModel(),
     });
+    console.log(this.#getModel(), "model");
     console.log("===== AI Review =====");
     console.log(response);
 
@@ -227,7 +244,9 @@ export class BeLinkReview {
   ): Promise<string> {
     const actualAgentPath =
       options.agentPath || this.#getAgentPath() || "agent";
+    const model = options.model || this.#getModel();
     const args: string[] = ["--yolo", "-p", prompt];
+    if (model) args.unshift("--model", model);
     if (options.outputFormat === "json") args.push("--output-format", "json");
 
     return new Promise((resolve, reject) => {

@@ -6,82 +6,25 @@ A powerful CLI tool for AI-powered code review using Git diffs.
 
 `review-mark` 旨在提供一个自动化 AI 代码审查解决方案。用户可以在自己的项目中初始化该工具后，通过简单的 CLI 命令自动获取 `git diff`，并将其发送给 AI 进行代码审查，从而帮助开发者发现潜在的 bug、逻辑问题、性能问题和代码风格问题，并获得优化建议。
 
-## 特性
-
-- **TypeScript 支持**: 整个项目使用 TypeScript 编写，提供强大的类型安全和开发体验。
-- **ESM + CommonJS**: 支持现代 Node.js 环境下的 ESM 和 CommonJS 模块系统。
-- **CLI 工具**: 基于 `commander` 构建，提供友好的命令行接口。
-- **自动化 Git Diff**: 自动检测并获取 Git 仓库中的代码变更（包括暂存区和工作区）。
-- **AI 代码审查**: 将 Git diff 发送给 Cursor CLI 进行 AI 驱动的代码审查。
-- **Cursor CLI 自动检测与安装**: 自动检测 `agent` 命令是否存在，如果不存在则提示并提供安装指引。
-- **易于集成**: 通过简单的 `init` 方法即可在用户项目中配置 `review` 脚本。
-- **可发布到 npm**: 完整的项目结构和打包配置，方便发布到 npm。
-
-## 项目结构
-
-```
-review-mark
-│
-├─ src
-│ ├─ core
-│ │ ├─ BeLinkReview.ts
-│ │ ├─ git.ts
-│ │ └─ prompt.ts
-│ │
-│ ├─ cli
-│ │ └─ review.ts
-│ │
-│ ├─ utils
-│ │ └─ checkCli.ts
-│ │
-│ └─ index.ts
-│
-├─ package.json
-├─ tsconfig.json
-├─ tsup.config.ts
-└─ README.md
-```
-
-## 技术栈
-
-- **语言**: TypeScript
-- **运行时**: Node.js 18+
-- **CLI 框架**: [commander](https://www.npmjs.com/package/commander)
-- **打包工具**: [tsup](https://www.npmjs.com/package/tsup)
-- **AI 引擎**: [Cursor CLI](https://cursor.com/cn/docs/cli/headless)
-
 ## 安装
 
 首先，在你的项目根目录安装 `review-mark` 作为开发依赖：
 
 ```bash
 pnpm add -D review-mark
+yarn add --dev review-mark
+npm install --save-dev review-mark
 ```
 
 ## 使用
 
 ### 1. 初始化
 
-在你的项目入口文件（例如 `src/main.ts` 或 `app.ts`）中，调用 `BeLinkReview.init()` 方法进行初始化。你需要提供一个 `apiKey`，这将用于 Cursor CLI 的认证。
-
-```typescript
-// src/main.ts (或你的项目入口文件)
-import { BeLinkReview } from "review-mark";
-
-BeLinkReview.init({
-  apiKey: process.env.CURSOR_API_KEY || "YOUR_CURSOR_API_KEY", // 建议从环境变量获取
-});
-
-// 你可以在这里继续你的应用逻辑
-```
-
-`BeLinkReview.init()` 会自动检测并向你的 `package.json` 文件中添加一个 `review-mark` 脚本：
-
 ```json
 // package.json
 {
   "scripts": {
-    "review-mark": "review-mark"
+    "review-mark": "CURSOR_API_KEY=your-api-key  review-mark"
   }
 }
 ```
@@ -118,23 +61,6 @@ CLI 将会执行以下步骤：
 ```
 [review-mark] No code changes detected
 ```
-
-## 配置
-
-### 基础配置
-
-`BeLinkReview.init()` 接受一个配置对象：
-
-```typescript
-interface BeLinkReviewOptions {
-  apiKey?: string; // 你的 Cursor API Key
-  agentPath?: string; // Cursor CLI agent 可执行文件路径
-  ignore?: string[]; // 需要忽略的文件模式
-  feishu?: FeiShuConfig; // 飞书机器人配置
-}
-```
-
-建议将 `apiKey` 作为环境变量 `CURSOR_API_KEY` 进行管理，以避免将其硬编码到代码中。
 
 ### 飞书机器人集成
 
@@ -173,29 +99,6 @@ FEISHU_ENABLED=false pnpm run review
 pnpm run review --no-feishu
 ```
 
-**方式三：代码配置**
-
-```typescript
-BeLinkReview.init({
-  apiKey: process.env.CURSOR_API_KEY,
-  enableFeishu: false,
-});
-```
-
-#### 3. 修改内置配置
-
-如果需要修改飞书配置（如更换群聊、修改消息格式等），可以直接编辑 `src/constants.ts` 文件：
-
-```typescript
-// src/constants.ts
-export const appId = "cli_a93822da7238dbb5";
-export const appSecret = "ZQdcpLUHFb4gFa8cGfrlJfVfSSyGtyzF";
-export const receiveId = "oc_482b6a04f95f4206c4fa9bc61829fd17"; // 修改为你的群聊 ID
-export const receiveIdType = "chat_id";
-export const messageType = "interactive"; // text | post | interactive
-export const messageTitle = "🔍 Code Review 结果";
-```
-
 #### 4. 常见问题
 
 **Q: 飞书通知会发送到哪里？**  
@@ -214,34 +117,6 @@ A: 支持三种格式：
 **Q: 如何完全禁用飞书功能？**  
 A: 使用 `--no-feishu` 参数或设置 `FEISHU_ENABLED=false` 环境变量。
 
-## 开发
-
-### 构建项目
-
-```bash
-cd review-mark
-pnpm install
-pnpm run build
-```
-
-这将使用 `tsup` 将 TypeScript 代码编译为 `dist/index.js` (ESM) 和 `dist/index.cjs` (CommonJS)。
-
-### 运行 CLI (开发模式)
-
-```bash
-pnpm run start
-```
-
-这将直接运行 `dist/cli/review.js`。
-
 ## 贡献
 
 欢迎提交 Issue 或 Pull Request。
-
-## 许可证
-
-ISC License
-
----
-
-**Manus AI** 生成

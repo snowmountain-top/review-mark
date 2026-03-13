@@ -1,10 +1,10 @@
-# be-link-review
+# review-mark
 
 A powerful CLI tool for AI-powered code review using Git diffs.
 
 ## 目标
 
-`be-link-review` 旨在提供一个自动化 AI 代码审查解决方案。用户可以在自己的项目中初始化该工具后，通过简单的 CLI 命令自动获取 `git diff`，并将其发送给 AI 进行代码审查，从而帮助开发者发现潜在的 bug、逻辑问题、性能问题和代码风格问题，并获得优化建议。
+`review-mark` 旨在提供一个自动化 AI 代码审查解决方案。用户可以在自己的项目中初始化该工具后，通过简单的 CLI 命令自动获取 `git diff`，并将其发送给 AI 进行代码审查，从而帮助开发者发现潜在的 bug、逻辑问题、性能问题和代码风格问题，并获得优化建议。
 
 ## 特性
 
@@ -20,7 +20,7 @@ A powerful CLI tool for AI-powered code review using Git diffs.
 ## 项目结构
 
 ```
-be-link-review
+review-mark
 │
 ├─ src
 │ ├─ core
@@ -52,14 +52,10 @@ be-link-review
 
 ## 安装
 
-首先，在你的项目根目录安装 `be-link-review` 作为开发依赖：
+首先，在你的项目根目录安装 `review-mark` 作为开发依赖：
 
 ```bash
-pnpm add -D be-link-review
-# 或者
-yarn add -D be-link-review
-# 或者
-npm install -D be-link-review
+pnpm add -D review-mark
 ```
 
 ## 使用
@@ -70,7 +66,7 @@ npm install -D be-link-review
 
 ```typescript
 // src/main.ts (或你的项目入口文件)
-import { BeLinkReview } from "be-link-review";
+import { BeLinkReview } from "review-mark";
 
 BeLinkReview.init({
   apiKey: process.env.CURSOR_API_KEY || "YOUR_CURSOR_API_KEY", // 建议从环境变量获取
@@ -79,13 +75,13 @@ BeLinkReview.init({
 // 你可以在这里继续你的应用逻辑
 ```
 
-`BeLinkReview.init()` 会自动检测并向你的 `package.json` 文件中添加一个 `review` 脚本：
+`BeLinkReview.init()` 会自动检测并向你的 `package.json` 文件中添加一个 `review-mark` 脚本：
 
 ```json
 // package.json
 {
   "scripts": {
-    "review": "belink-review"
+    "review-mark": "review-mark"
   }
 }
 ```
@@ -97,7 +93,7 @@ BeLinkReview.init({
 初始化完成后，你可以在项目根目录执行以下命令来运行 AI 代码审查：
 
 ```bash
-pnpm run review
+pnpm run review-mark
 ```
 
 CLI 将会执行以下步骤：
@@ -111,8 +107,8 @@ CLI 将会执行以下步骤：
 #### CLI 输出示例
 
 ```
-[be-link-review] Getting git diff...
-[be-link-review] Sending to AI...
+[review-mark] Getting git diff...
+[review-mark] Sending to AI...
 ===== AI Review =====
 (这里是 AI 返回结果)
 ```
@@ -120,7 +116,7 @@ CLI 将会执行以下步骤：
 如果检测到没有代码变更，则会输出：
 
 ```
-[be-link-review] No code changes detected
+[review-mark] No code changes detected
 ```
 
 ## 配置
@@ -142,11 +138,12 @@ interface BeLinkReviewOptions {
 
 ### 飞书机器人集成
 
-`be-link-review` 已**完全内置**飞书机器人功能，所有飞书配置已写死在代码中，**无需任何配置即可使用**！
+`review-mark` 已**完全内置**飞书机器人功能，所有飞书配置已写死在代码中，**无需任何配置即可使用**！
 
 #### 1. 开箱即用
 
 ✅ 飞书配置已完全内置，包括：
+
 - App ID 和 App Secret
 - 接收者 ID (群聊/用户)
 - 消息类型和标题
@@ -209,6 +206,7 @@ A: 修改 `src/constants.ts` 中的 `receiveId` 为新的群聊 chat_id，然后
 
 **Q: 支持哪些消息格式？**  
 A: 支持三种格式：
+
 - `interactive` (默认): 美观的消息卡片，支持 Markdown
 - `post`: 富文本格式
 - `text`: 纯文本格式
@@ -221,7 +219,7 @@ A: 使用 `--no-feishu` 参数或设置 `FEISHU_ENABLED=false` 环境变量。
 ### 构建项目
 
 ```bash
-cd be-link-review
+cd review-mark
 pnpm install
 pnpm run build
 ```

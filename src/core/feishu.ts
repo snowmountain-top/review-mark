@@ -13,8 +13,8 @@ import {
  * 使用飞书官方 Node.js SDK，所有配置从 constants.ts 读取
  */
 export async function sendReviewToFeishu(reviewContent: string): Promise<void> {
-  console.log("[be-link-review] 正在发送消息到飞书...");
-  console.log(`[be-link-review] 消息类型: ${messageType}`);
+  console.log("[review-mark] 正在发送消息到飞书...");
+  console.log(`[review-mark] 消息类型: ${messageType}`);
 
   try {
     // 初始化飞书客户端
@@ -82,11 +82,11 @@ export async function sendReviewToFeishu(reviewContent: string): Promise<void> {
       });
       msgType = "text";
     } else {
-      throw new Error(`[be-link-review] 不支持的消息类型: ${messageType}`);
+      throw new Error(`[review-mark] 不支持的消息类型: ${messageType}`);
     }
 
     // 调试日志
-    console.log(`[be-link-review] 发送参数:`);
+    console.log(`[review-mark] 发送参数:`);
     console.log(`  - receive_id_type: ${receiveIdType}`);
     console.log(`  - receive_id: ${receiveId}`);
     console.log(`  - msg_type: ${msgType}`);
@@ -105,14 +105,16 @@ export async function sendReviewToFeishu(reviewContent: string): Promise<void> {
 
     if (response.code !== 0) {
       throw new Error(
-        `[be-link-review] 飞书 API 返回错误: ${response.msg || "未知错误"}`
+        `[review-mark] 飞书 API 返回错误: ${response.msg || "未知错误"}`
       );
     }
 
-    console.log("[be-link-review] ✅ 飞书消息发送成功");
-    console.log(`[be-link-review] 消息 ID: ${response.data?.message_id || "未知"}`);
+    console.log("[review-mark] ✅ 飞书消息发送成功");
+    console.log(
+      `[review-mark] 消息 ID: ${response.data?.message_id || "未知"}`
+    );
   } catch (error: any) {
-    console.error(`[be-link-review] ❌ 飞书消息发送失败: ${error.message}`);
+    console.error(`[review-mark] ❌ 飞书消息发送失败: ${error.message}`);
     throw error;
   }
 }

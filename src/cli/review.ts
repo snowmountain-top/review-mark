@@ -4,7 +4,7 @@ import { BeLinkReview } from "../core/BeLinkReview";
 const program = new Command();
 
 program
-  .name("belink-review")
+  .name("review-mark")
   .description("AI-powered code review tool")
   .version("1.0.0")
   .option(
@@ -58,7 +58,7 @@ program
       );
       await instance.goCli();
     } catch (error: any) {
-      console.error(`[be-link-review] Error: ${error.message}`);
+      console.error(`[review-mark] Error: ${error.message}`);
       process.exit(1);
     }
   });
@@ -117,7 +117,7 @@ program
       );
       await instance.goCli();
     } catch (error: any) {
-      console.error(`[be-link-review] Error: ${error.message}`);
+      console.error(`[review-mark] Error: ${error.message}`);
       process.exit(1);
     }
   });

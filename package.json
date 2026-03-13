@@ -1,13 +1,13 @@
 {
   "name": "review-mark",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "description": "A CLI tool for AI-powered code review using git diff.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "belink-review": "dist/cli/review.js"
+    "review-mark": "dist/cli/review.js"
   },
   "exports": {
     ".": {
@@ -18,17 +18,28 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "start": "node dist/cli/review.js"
+    "start": "node dist/cli/review.js",
+    "prepublishOnly": "pnpm run build"
   },
   "keywords": [
     "ai",
     "code-review",
     "cli",
     "git",
-    "diff"
+    "diff",
+    "cursor",
+    "feishu"
   ],
-  "author": "",
+  "author": "snowmountain-top",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/snowmountain-top/review-mark.git"
+  },
+  "homepage": "https://github.com/snowmountain-top/review-mark#readme",
+  "bugs": {
+    "url": "https://github.com/snowmountain-top/review-mark/issues"
+  },
   "devDependencies": {
     "@types/node": "^18.0.0",
     "tsup": "^8.0.2",

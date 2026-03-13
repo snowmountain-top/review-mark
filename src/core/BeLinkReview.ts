@@ -74,11 +74,12 @@ export class BeLinkReview {
         (process.env.BE_LINK_REVIEW_IGNORE
           ? process.env.BE_LINK_REVIEW_IGNORE.split(",")
           : undefined);
-      const enableFeishu = cliEnableFeishu ?? (process.env.FEISHU_ENABLED !== "false");
+      const enableFeishu =
+        cliEnableFeishu ?? process.env.FEISHU_ENABLED !== "false";
 
       if (!apiKey) {
         throw new Error(
-          '[be-link-review] 请先调用 BeLinkReview.init({ apiKey: "..." }) 初始化，或设置环境变量 CURSOR_API_KEY，或通过命令行参数 --apiKey 传入。'
+          '[review-mark] 请先调用 BeLinkReview.init({ apiKey: "..." }) 初始化，或设置环境变量 CURSOR_API_KEY，或通过命令行参数 --apiKey 传入。'
         );
       }
       BeLinkReview.#instance = new BeLinkReview(
@@ -109,7 +110,7 @@ export class BeLinkReview {
     const apiKey = this.#apiKey || process.env.CURSOR_API_KEY;
     if (!apiKey) {
       throw new Error(
-        '[be-link-review] 请先在 init({ apiKey: "..." }) 中传入 apiKey，或设置环境变量 CURSOR_API_KEY，或通过命令行参数 --apiKey 传入。'
+        '[review-mark] 请先在 init({ apiKey: "..." }) 中传入 apiKey，或设置环境变量 CURSOR_API_KEY，或通过命令行参数 --apiKey 传入。'
       );
     }
     return apiKey;
@@ -142,17 +143,17 @@ export class BeLinkReview {
         packageJson.scripts = {};
       }
 
-      if (!packageJson.scripts.review) {
-        packageJson.scripts.review = "belink-review";
+      if (!packageJson.scripts["review-mark"]) {
+        packageJson.scripts["review-mark"] = "review-mark";
         writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
         console.log(
-          "[be-link-review] 已在 package.json 中添加 'review' 脚本。"
+          "[review-mark] 已在 package.json 中添加 'review-mark' 脚本。"
         );
       } else {
-        console.log("[be-link-review] 'review' 脚本已存在，跳过添加。");
+        console.log("[review-mark] 'review-mark' 脚本已存在，跳过添加。");
       }
     } catch (error) {
-      console.error("[be-link-review] 无法更新 package.json: ", error);
+      console.error("[review-mark] 无法更新 package.json: ", error);
     }
   }
 
@@ -168,20 +169,20 @@ export class BeLinkReview {
 
     if (!ensureResult.isInstalled) {
       throw new Error(
-        "[be-link-review] Cursor CLI 未安装且自动安装失败，请手动安装。"
+        "[review-mark] Cursor CLI 未安装且自动安装失败，请手动安装。"
       );
     }
 
-    console.log("[be-link-review] Getting git diff...");
+    console.log("[review-mark] Getting git diff...");
     const diff = await getGitDiff(ignorePatterns, process.cwd());
 
     if (!diff) {
-      console.log("[be-link-review] No code changes detected");
+      console.log("[review-mark] No code changes detected");
       return "No code changes detected";
     }
 
     const prompt = generateAIPrompt(diff);
-    console.log("[be-link-review] Sending to AI...");
+    console.log("[review-mark] Sending to AI...");
     const response = await this.chat(prompt, {
       agentPath: ensureResult.actualAgentPath,
       force: true,
@@ -195,7 +196,7 @@ export class BeLinkReview {
         await sendReviewToFeishu(response);
       } catch (error: any) {
         console.error(
-          `[be-link-review] 飞书通知发送失败，但不影响 review 结果: ${error.message}`
+          `[review-mark] 飞书通知发送失败，但不影响 review 结果: ${error.message}`
         );
       }
     }
@@ -235,7 +236,7 @@ export class BeLinkReview {
         env,
         cwd: process.cwd(),
         shell: false,
-        stdio: ['ignore', 'pipe', 'pipe'],
+        stdio: ["ignore", "pipe", "pipe"],
       });
 
       let stdout = "";
@@ -251,7 +252,7 @@ export class BeLinkReview {
       proc.on("error", (err) => {
         reject(
           new Error(
-            `[be-link-review] 无法启动 Cursor CLI (${actualAgentPath})，请先安装：curl https://cursor.com/install -fsS | bash。原始错误: ${err.message}`
+            `[review-mark] 无法启动 Cursor CLI (${actualAgentPath})，请先安装：curl https://cursor.com/install -fsS | bash。原始错误: ${err.message}`
           )
         );
       });
@@ -260,7 +261,7 @@ export class BeLinkReview {
         if (code !== 0) {
           reject(
             new Error(
-              `[be-link-review] agent 退出码 ${code}${
+              `[review-mark] agent 退出码 ${code}${
                 stderr ? `: ${stderr.trim()}` : ""
               }`
             )

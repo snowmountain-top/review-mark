@@ -1,6 +1,6 @@
 {
   "name": "review-mark",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A CLI tool for AI-powered code review using git diff.",
   "type": "module",
   "main": "./dist/index.cjs",
